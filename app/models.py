@@ -1,5 +1,7 @@
-from pydantic import BaseModel
-from typing import Optional, List, Any
+from pydantic import BaseModel, Field
+from typing import Optional, List, Any, Dict
+from datetime import datetime
+from uuid import UUID
 
 class InspectionParameters(BaseModel):
     pdp_area_cm2: Optional[float] = None
@@ -28,3 +30,31 @@ class InspectionResponse(BaseModel):
     success: bool
     inspection: Optional[InspectionResultData] = None
     error: Optional[str] = None
+
+# New Models for CloudKirana Prototype
+class AuthRequest(BaseModel):
+    phone: str
+
+class AuthVerify(BaseModel):
+    phone: str
+    otp: str
+
+class ONDCSyncRequest(BaseModel):
+    enabled: bool
+
+class InventoryAddRequest(BaseModel):
+    scan_id: UUID
+
+class InvoiceUpdateRequest(BaseModel):
+    invoice_id: UUID
+
+class OrderRequest(BaseModel):
+    items: List[Dict[str, Any]]
+    totalAmount: float
+    paymentMethod: str = "COD"
+
+class NoticeRequest(BaseModel):
+    pass
+
+class RecallRequest(BaseModel):
+    pass

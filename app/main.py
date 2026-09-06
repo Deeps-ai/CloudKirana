@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from typing import Optional
 from app.models import InspectionResponse, InspectionParameters
@@ -5,11 +6,25 @@ from app.inspection import run_inspection
 import numpy as np
 import cv2
 
+from fastapi.middleware.cors import CORSMiddleware
+from app.routers import router as api_router
+
 app = FastAPI(
     title="CloudKirana Inspection Backend",
     description="Inspection backend for CloudKirana labeling compliance.",
     version="1.0.0"
 )
+
+# Configure CORS for React frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(api_router, prefix="/api")
 
 @app.get("/health")
 def health():
