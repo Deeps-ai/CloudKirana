@@ -22,7 +22,8 @@ app = FastAPI(
 # Configure CORS for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_origins=["null"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -65,12 +66,13 @@ def health():
         "frontend": "wired"
     }
 
+@app.post("/inspect", response_model=InspectionResponse)
 @app.post("/api/v1/inspect", response_model=InspectionResponse)
 async def inspect_endpoint(
     image: UploadFile = File(...),
-    pdp_area_cm2: Optional[float] = Form(None),
-    pixels_per_mm: Optional[float] = Form(None),
-    print_type: Optional[str] = Form("normal")
+    pdp_area_cm2: float = Form(120.0),
+    pixels_per_mm: float = Form(10.0),
+    print_type: str = Form("normal")
 ):
     if print_type not in ["normal", "blown_formed_moulded_embossed"]:
         raise HTTPException(status_code=400, detail="Invalid print_type")

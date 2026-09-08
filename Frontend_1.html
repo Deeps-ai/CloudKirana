@@ -608,8 +608,22 @@
                 <button onclick="document.getElementById('lmpc-scan-input').click()" class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-cyan-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-500/40 transform -translate-y-6 hover:scale-105 transition-transform border-4 border-white">
                     <i class="fas fa-camera text-xl"></i>
                 </button>
-                <input id="lmpc-scan-input" type="file" accept="image/png,image/jpeg" class="hidden" onchange="scanLmpcLabel(this)">
+                <input id="lmpc-scan-input" type="file" accept="image/*" capture="environment" class="hidden" onchange="handleScanUpload(event)">
                 <button onclick="navigateTo('view-retailer-market')" class="flex flex-col items-center gap-1.5 text-slate-400 hover:text-blue-600 transition-colors w-16"><i class="fas fa-boxes text-xl"></i><span class="text-[9px] font-bold tracking-wider">BUY</span></button>
+            </div>
+
+            <!-- Loading Overlay -->
+            <div id="scan-loading-overlay" class="hidden absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex-col items-center justify-center text-white rounded-[33px]">
+                <div class="w-12 h-12 border-4 border-blue-500 border-t-white rounded-full animate-spin mb-4"></div>
+                <div class="font-bold text-sm">Analyzing Label...</div>
+                <div class="text-[10px] text-blue-200 mt-1">Measuring font compliance & OCR</div>
+            </div>
+
+            <!-- Inspection Results Drawer -->
+            <div id="inspection-results-drawer" class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-[0_-20px_50px_rgba(0,0,0,0.2)] z-50 transform translate-y-full transition-transform duration-300 flex flex-col max-h-[85%] border border-slate-200">
+                <div class="flex-1 overflow-y-auto hide-scrollbar" id="inspection-results-content">
+                    <!-- Populated dynamically -->
+                </div>
             </div>
         </div>
 
@@ -978,19 +992,129 @@
             }
         }
 
-        async function scanLmpcLabel(input) {
+        function showScanLoading() {
+            const overlay = document.getElementById('scan-loading-overlay');
+            if(overlay) {
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            }
+        }
+
+        function hideScanLoading() {
+            const overlay = document.getElementById('scan-loading-overlay');
+            if(overlay) {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            }
+        }
+
+        function closeInspectionDrawer() {
+            const drawer = document.getElementById('inspection-results-drawer');
+            if(drawer) {
+                drawer.classList.add('translate-y-full');
+            }
+        }
+
+        function showInspectionResults(inspection) {
+            if(!inspection) return;
+            const drawer = document.getElementById('inspection-results-drawer');
+            const content = document.getElementById('inspection-results-content');
+            if(!drawer || !content) return;
+
+            let statusColor = 'text-amber-500';
+            let statusBg = 'bg-amber-50 border-amber-200';
+            let statusIcon = 'fa-exclamation-triangle';
+            if (inspection.overall_status === 'PASS') {
+                statusColor = 'text-emerald-600';
+                statusBg = 'bg-emerald-50 border-emerald-200';
+                statusIcon = 'fa-check-circle';
+            } else if (inspection.overall_status === 'FAIL') {
+                statusColor = 'text-red-600';
+                statusBg = 'bg-red-50 border-red-200';
+                statusIcon = 'fa-times-circle';
+            }
+
+            let resultsHtml = (inspection.results || []).map(r => {
+                const isPass = r.status === 'PASS';
+                const color = isPass ? 'text-emerald-600' : (r.status === 'FAIL' ? 'text-red-600' : 'text-amber-500');
+                return `
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col gap-1">
+                        <div class="flex justify-between items-start">
+                            <div class="font-bold text-xs text-slate-800 line-clamp-2">"${r.text}"</div>
+                            <div class="text-[9px] font-black ${color} px-1.5 py-0.5 rounded border border-current whitespace-nowrap ml-2">${r.status}</div>
+                        </div>
+                        <div class="text-[10px] text-slate-500">
+                            Measured: <span class="font-bold text-slate-700">${r.text_height_mm || '?'} mm</span> | Required: ${r.required_mm || '?'} mm
+                        </div>
+                        ${r.status !== 'PASS' ? `<div class="text-[9px] text-red-500 mt-1"><i class="fas fa-info-circle"></i> ${r.reason}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            content.innerHTML = `
+                <div class="p-5">
+                    <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4"></div>
+                    
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-sm font-black text-slate-900 uppercase tracking-widest mb-1">Inspection Report</h3>
+                            <div class="text-[10px] text-slate-500">Target Detected: ${inspection.inspection_target_detected ? 'Yes' : 'No'} | OCR: ${inspection.ocr_status}</div>
+                        </div>
+                        <button onclick="closeInspectionDrawer()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-3 p-4 rounded-2xl border ${statusBg} mb-5">
+                        <i class="fas ${statusIcon} text-3xl ${statusColor}"></i>
+                        <div>
+                            <div class="text-[10px] font-bold uppercase tracking-wider ${statusColor}">Overall Status</div>
+                            <div class="text-lg font-black text-slate-900">${inspection.overall_status}</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 mb-6">
+                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Detected Text Fields</h4>
+                        ${resultsHtml || '<div class="text-xs text-slate-500 italic">No text regions found.</div>'}
+                    </div>
+                    
+                    <div class="flex gap-3">
+                        <button onclick="closeInspectionDrawer(); document.getElementById('lmpc-scan-input').click()" class="flex-1 py-3.5 rounded-xl border-2 border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 transition">Rescan Label</button>
+                        ${inspection.overall_status === 'PASS' 
+                            ? `<button onclick="closeInspectionDrawer(); alert('Added to inventory!')" class="flex-1 py-3.5 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-lg shadow-blue-500/30 hover:bg-blue-500 transition">Accept to Inventory</button>`
+                            : ''
+                        }
+                    </div>
+                </div>
+            `;
+            
+            drawer.classList.remove('translate-y-full');
+        }
+
+        async function handleScanUpload(event) {
+            const input = event.target;
             const file = input.files && input.files[0];
             input.value = '';
             if (!file) return;
+            
+            showScanLoading();
+            
             const form = new FormData();
             form.append('image', file);
+            form.append('pixels_per_mm', '10.0');
+            form.append('pdp_area_cm2', '120.0');
             form.append('print_type', 'normal');
+            
             try {
-                const result = await api('/api/v1/inspect', { method: 'POST', body: form });
-                const status = result.inspection?.overall_status || 'UNKNOWN';
-                const ocr = result.inspection?.ocr_status || '';
-                alert('LMPC scan ' + status + (ocr ? ' (OCR: ' + ocr + ')' : ''));
+                const result = await api('/inspect', { method: 'POST', body: form });
+                hideScanLoading();
+                if(result.success && result.inspection) {
+                    showInspectionResults(result.inspection);
+                } else {
+                    alert('Inspection failed: ' + (result.error || 'Unknown error'));
+                }
             } catch (err) {
+                hideScanLoading();
                 alert('Scan failed: ' + err.message);
             }
         }
