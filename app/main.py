@@ -6,6 +6,7 @@ from app.inspection import run_inspection
 import numpy as np
 import cv2
 
+# pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import router as api_router
 
