@@ -1,12 +1,29 @@
+from enum import Enum
 from pydantic import BaseModel, Field
 from typing import Optional, List, Any, Dict
 from datetime import datetime
 from uuid import UUID
 
+class LMPCStatus(str, Enum):
+    COMPLIANT = "COMPLIANT"
+    POTENTIAL_ISSUE = "POTENTIAL_ISSUE"
+    REQUIRES_VERIFICATION = "REQUIRES_VERIFICATION"
+    NON_COMPLIANT = "NON_COMPLIANT"
+
+class DeclarationFieldResult(BaseModel):
+    field_name: str
+    detected_value: Optional[str] = None
+    is_present: bool
+    font_height_mm: Optional[float] = None
+    min_required_mm: float
+    status: LMPCStatus
+    reasons: List[str] = Field(default_factory=list)
+
 class InspectionParameters(BaseModel):
     pdp_area_cm2: Optional[float] = None
     pixels_per_mm: Optional[float] = None
     print_type: Optional[str] = "normal"
+    category: Optional[str] = "packaged_food"
 
 class TextRegionResult(BaseModel):
     text: str
@@ -25,6 +42,15 @@ class InspectionResultData(BaseModel):
     overall_status: str
     parameters: dict
     results: List[TextRegionResult]
+    barcodes: List[Dict[str, Any]] = Field(default_factory=list)
+    label_crop_coordinates: Optional[List[int]] = None
+    overall_compliance_score: float = 0.0
+    classification: LMPCStatus = LMPCStatus.REQUIRES_VERIFICATION
+    declarations: Dict[str, DeclarationFieldResult] = Field(default_factory=dict)
+    category: str = "packaged_food"
+
+# Alias for InspectionResult if referenced
+InspectionResult = InspectionResultData
 
 class InspectionResponse(BaseModel):
     success: bool

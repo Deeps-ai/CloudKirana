@@ -75,3 +75,51 @@ CREATE TABLE orders (
     status TEXT DEFAULT 'Placed', -- 'Placed', 'Verified & Packed', 'Out for Delivery', 'Delivered'
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Stock Transactions Table
+CREATE TABLE stock_transactions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    store_id UUID REFERENCES businesses(id),
+    product_id UUID REFERENCES products(id),
+    type TEXT NOT NULL, -- INVOICE_IN, SALE_OUT, AUDIT_ADJUST
+    qty_change DECIMAL NOT NULL,
+    reference_id TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Batches Table
+CREATE TABLE batches (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    product_id UUID REFERENCES products(id),
+    batch_no TEXT,
+    expiry_date TEXT,
+    stock_qty DECIMAL DEFAULT 0,
+    mrp DECIMAL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Audit Logs Table
+CREATE TABLE audit_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    entity_type TEXT NOT NULL, -- 'INSPECTION', 'INVOICE', 'INVENTORY_TRANSFER'
+    entity_id TEXT,
+    actor_id TEXT,
+    actor_role TEXT,
+    action TEXT NOT NULL,
+    payload_hash TEXT NOT NULL,
+    metadata JSONB,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Immutability Trigger for Audit Logs
+CREATE OR REPLACE FUNCTION prevent_audit_log_modification()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE EXCEPTION 'Audit logs are append-only';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER enforce_audit_immutability
+BEFORE UPDATE OR DELETE ON audit_logs
+FOR EACH ROW
+EXECUTE FUNCTION prevent_audit_log_modification();
