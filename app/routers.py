@@ -21,25 +21,28 @@ async def verify_otp(request: AuthVerify):
     # Mock OTP verification (accept any 4 digits for prototype)
     if not request.otp or len(request.otp) != 4:
         raise HTTPException(status_code=400, detail="Invalid OTP format")
-    
-    # Upsert user based on phone for prototype
-    res = supabase.table("users").select("*").eq("phone", request.phone).execute()
-    if not res.data:
-        # Create a mock business and user
-        business = supabase.table("businesses").insert({
-            "name": f"Store for {request.phone}",
-            "role": "retailer"
-        }).execute()
-        
-        user = supabase.table("users").insert({
-            "phone": request.phone,
-            "business_id": business.data[0]["id"],
-            "role": "retailer"
-        }).execute()
-        token = str(user.data[0]["id"]) # Use user ID as token for prototype
-    else:
-        token = str(res.data[0]["id"])
-        
+
+    token = f"demo-{request.phone}"
+    if supabase is not None:
+        try:
+            res = supabase.table("users").select("*").eq("phone", request.phone).execute()
+            if not res.data:
+                business = supabase.table("businesses").insert({
+                    "name": f"Store for {request.phone}",
+                    "role": "retailer"
+                }).execute()
+
+                user = supabase.table("users").insert({
+                    "phone": request.phone,
+                    "business_id": business.data[0]["id"],
+                    "role": "retailer"
+                }).execute()
+                token = str(user.data[0]["id"])
+            else:
+                token = str(res.data[0]["id"])
+        except Exception:
+            token = f"demo-{request.phone}"
+
     return {"token": token, "role": "retailer"}
 
 # --- Retailer ---
@@ -72,8 +75,8 @@ async def update_stock(request: dict):
 @router.get("/consumer/products")
 async def get_consumer_products():
     return [
-        {"id": 1, "name": "Tata Salt 1kg", "price": 28, "verified": True},
-        {"id": 2, "name": "Maggi Noodles 70g", "price": 14, "verified": True},
+        {"id": 1, "name": "Tata Salt 1kg", "price": 28, "mrp": 30, "verified": True, "category": "Staples"},
+        {"id": 2, "name": "Maggi Noodles 70g", "price": 14, "mrp": 14, "verified": True, "category": "Snacks"},
     ]
 
 @router.post("/consumer/checkout")

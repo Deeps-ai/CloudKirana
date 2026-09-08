@@ -1,5 +1,7 @@
 # pyrefly: ignore [missing-import]
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi.responses import FileResponse
+from pathlib import Path
 from typing import Optional
 from app.models import InspectionResponse, InspectionParameters
 from app.inspection import run_inspection
@@ -8,6 +10,8 @@ import cv2
 
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import router as api_router
+
+FRONTEND_FILE = Path(__file__).resolve().parent.parent / "Frontend_1.html"
 
 app = FastAPI(
     title="CloudKirana Inspection Backend",
@@ -26,11 +30,18 @@ app.add_middleware(
 
 app.include_router(api_router, prefix="/api")
 
+@app.get("/")
+def serve_frontend():
+    if not FRONTEND_FILE.exists():
+        raise HTTPException(status_code=404, detail="Frontend_1.html not found")
+    return FileResponse(FRONTEND_FILE)
+
 @app.get("/health")
 def health():
     return {
         "status": "ok",
-        "service": "CloudKirana"
+        "service": "CloudKirana",
+        "frontend": "wired"
     }
 
 @app.post("/api/v1/inspect", response_model=InspectionResponse)

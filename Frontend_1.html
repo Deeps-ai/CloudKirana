@@ -102,7 +102,7 @@
                     <div class="inline-flex items-center gap-1 bg-white/20 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider mb-2">
                         <i class="fas fa-shield-check text-emerald-300"></i> LMPC Certified Hub
                     </div>
-                    <h2 class="text-base font-black tracking-tight">Sharma Provision Store</h2>
+                    <h2 class="text-base font-black tracking-tight" id="consumer-store-name">Sharma Provision Store</h2>
                     <p class="text-[11px] text-emerald-100 mt-0.5">Delivering to you in <span class="font-bold text-white underline">12-15 mins</span></p>
                 </div>
 
@@ -210,7 +210,7 @@
                     <i class="fas fa-arrow-left text-xs"></i>
                 </button>
                 <div class="text-center">
-                    <h1 class="text-xs font-black text-slate-800 tracking-wider uppercase">Order #CK-8902</h1>
+                    <h1 id="consumer-order-id" class="text-xs font-black text-slate-800 tracking-wider uppercase">Order #CK-8902</h1>
                     <span class="text-[10px] text-emerald-600 font-bold flex items-center justify-center gap-1">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live Tracking
                     </span>
@@ -577,21 +577,21 @@
                     <h2 class="text-2xl font-black text-slate-800 tracking-tight">Kirana Login</h2>
                 </div>
                 <div class="space-y-4">
-                    <input type="text" value="sharma@provision.in" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none font-medium text-slate-700">
-                    <input type="password" value="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none font-medium text-slate-700">
+                    <input id="retailer-login-phone" type="tel" value="9876543210" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none font-medium text-slate-700" placeholder="Phone number">
+                    <input id="retailer-login-otp" type="text" maxlength="4" value="1234" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none font-medium text-slate-700" placeholder="4-digit OTP">
                 </div>
-                <button onclick="navigateTo('view-retailer')" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/30 mt-8">Login</button>
+                <button onclick="loginRetailer()" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-blue-500/30 mt-8">Login</button>
             </div>
         </div>
 
         <div id="view-retailer" class="app-view hidden flex-col h-full relative bg-slate-50">
             <div class="bg-gradient-to-b from-blue-900 to-slate-900 px-6 pt-14 pb-8 rounded-b-[40px] shadow-lg z-20">
                 <div class="flex justify-between items-center mb-6">
-                    <div><h1 class="text-[10px] font-extrabold text-blue-300 uppercase tracking-widest">My Store</h1><h2 class="text-xl font-black text-white mt-1">Sharma Provision</h2></div>
+                    <div><h1 class="text-[10px] font-extrabold text-blue-300 uppercase tracking-widest">My Store</h1><h2 id="retailer-store-name" class="text-xl font-black text-white mt-1">Sharma Provision</h2></div>
                     <button onclick="navigateTo('view-role-selector')" class="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-sm transition-colors"><i class="fas fa-power-off"></i></button>
                 </div>
                 <div class="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-3xl flex justify-between items-center">
-                    <div><div class="text-[10px] text-blue-200 font-bold tracking-wider">TOTAL STOCK</div><div class="text-2xl font-black text-white mt-0.5">1,204</div></div>
+                    <div><div class="text-[10px] text-blue-200 font-bold tracking-wider">TOTAL STOCK</div><div id="retailer-stock-total" class="text-2xl font-black text-white mt-0.5">—</div></div>
                     <div class="text-right"><div class="text-[10px] text-emerald-300 font-bold tracking-wider">LMPC COMPLIANCE</div><div class="text-lg font-black text-emerald-400 mt-0.5">98.5%</div></div>
                 </div>
             </div>
@@ -599,22 +599,16 @@
             <div class="flex-1 overflow-y-auto pb-28 px-5 pt-6 space-y-5 hide-scrollbar">
                 <div>
                     <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 px-1">Live Inventory Scan</h3>
-                    <div class="bg-white p-4 rounded-2xl shadow-[0_4px_15px_-5px_rgba(0,0,0,0.05)] border border-slate-100 flex items-center gap-4 group hover:border-blue-200 transition-colors cursor-pointer">
-                        <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100 group-hover:bg-blue-50 transition-colors"><i class="fas fa-box text-slate-400 group-hover:text-blue-500"></i></div>
-                        <div class="flex-1">
-                            <h4 class="font-bold text-slate-800 text-sm">Aashirvaad Atta 5kg</h4>
-                            <div class="text-xs text-slate-500 font-medium mb-1.5">₹250 • Qty: 45</div>
-                            <div class="inline-flex items-center gap-1.5 text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100"><i class="fas fa-shield-check"></i> VERIFIED</div>
-                        </div>
-                    </div>
+                    <div id="retailer-inventory-list" class="space-y-3"></div>
                 </div>
             </div>
 
             <div class="bg-white/90 backdrop-blur-lg border-t border-slate-200 absolute bottom-0 w-full pb-6 pt-3 px-6 z-20 flex justify-between items-center shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
                 <button class="flex flex-col items-center gap-1.5 text-blue-600 w-16"><i class="fas fa-store text-xl"></i><span class="text-[9px] font-bold tracking-wider">STORE</span></button>
-                <button onclick="alert('Camera opening to scan LMPC details...')" class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-cyan-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-500/40 transform -translate-y-6 hover:scale-105 transition-transform border-4 border-white">
+                <button onclick="document.getElementById('lmpc-scan-input').click()" class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-cyan-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-blue-500/40 transform -translate-y-6 hover:scale-105 transition-transform border-4 border-white">
                     <i class="fas fa-camera text-xl"></i>
                 </button>
+                <input id="lmpc-scan-input" type="file" accept="image/png,image/jpeg" class="hidden" onchange="scanLmpcLabel(this)">
                 <button onclick="navigateTo('view-retailer-market')" class="flex flex-col items-center gap-1.5 text-slate-400 hover:text-blue-600 transition-colors w-16"><i class="fas fa-boxes text-xl"></i><span class="text-[9px] font-bold tracking-wider">BUY</span></button>
             </div>
         </div>
@@ -670,19 +664,63 @@
     </div>
 
     <script>
-        // Consumer Catalog Data
-        const CONSUMER_PRODUCTS = [
-            { id: 1, name: "Aashirvaad Atta 5kg", category: "Staples", price: 245, mrp: 280, icon: "fa-wheat-awn", color: "text-amber-600", bg: "bg-amber-50" },
-            { id: 2, name: "Fortune Sunflower Oil 1L", category: "Staples", price: 142, mrp: 165, icon: "fa-bottle-droplet", color: "text-yellow-600", bg: "bg-yellow-50" },
-            { id: 3, name: "Amul Taaza Milk 500ml", category: "Dairy", price: 27, mrp: 27, icon: "fa-glass-water", color: "text-blue-600", bg: "bg-blue-50" },
-            { id: 4, name: "Maggi Masala 70g", category: "Snacks", price: 14, mrp: 14, icon: "fa-bowl-food", color: "text-red-500", bg: "bg-red-50" },
-            { id: 5, name: "Tata Salt 1kg", category: "Staples", price: 28, mrp: 30, icon: "fa-cubes-stacked", color: "text-cyan-600", bg: "bg-cyan-50" },
-            { id: 6, name: "Cadbury Silk 60g", category: "Snacks", price: 85, mrp: 90, icon: "fa-cookie-bite", color: "text-purple-600", bg: "bg-purple-50" }
-        ];
+        const API_BASE = window.location.origin.startsWith('http') ? window.location.origin : 'http://127.0.0.1:8000';
 
-        // Consumer Cart State: { [productId]: quantity }
+        let CONSUMER_PRODUCTS = [];
         let consumerCart = {};
         let activeCategory = 'all';
+        let authToken = localStorage.getItem('ck_token') || '';
+
+        function productStyle(name) {
+            const n = (name || '').toLowerCase();
+            if (n.includes('salt')) return { icon: 'fa-cubes-stacked', color: 'text-cyan-600', bg: 'bg-cyan-50', category: 'Staples' };
+            if (n.includes('maggi') || n.includes('noodle')) return { icon: 'fa-bowl-food', color: 'text-red-500', bg: 'bg-red-50', category: 'Snacks' };
+            if (n.includes('oil')) return { icon: 'fa-bottle-droplet', color: 'text-yellow-600', bg: 'bg-yellow-50', category: 'Staples' };
+            if (n.includes('milk')) return { icon: 'fa-glass-water', color: 'text-blue-600', bg: 'bg-blue-50', category: 'Dairy' };
+            if (n.includes('atta')) return { icon: 'fa-wheat-awn', color: 'text-amber-600', bg: 'bg-amber-50', category: 'Staples' };
+            return { icon: 'fa-box', color: 'text-emerald-600', bg: 'bg-emerald-50', category: 'Staples' };
+        }
+
+        function enrichProduct(p) {
+            const style = productStyle(p.name);
+            return {
+                id: p.id,
+                name: p.name,
+                price: p.price,
+                mrp: p.mrp ?? p.price,
+                verified: p.verified !== false,
+                category: p.category || style.category,
+                icon: p.icon || style.icon,
+                color: p.color || style.color,
+                bg: p.bg || style.bg
+            };
+        }
+
+        async function api(path, options = {}) {
+            const headers = { ...(options.headers || {}) };
+            if (options.body && !(options.body instanceof FormData) && !headers['Content-Type']) {
+                headers['Content-Type'] = 'application/json';
+            }
+            if (authToken) headers['Authorization'] = 'Bearer ' + authToken;
+            const res = await fetch(API_BASE + path, { ...options, headers });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                const detail = data.detail || data.message || res.statusText;
+                throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+            }
+            return data;
+        }
+
+        async function loadConsumerProducts() {
+            try {
+                const data = await api('/api/consumer/products');
+                CONSUMER_PRODUCTS = (Array.isArray(data) ? data : []).map(enrichProduct);
+            } catch (err) {
+                CONSUMER_PRODUCTS = [];
+                console.error('Failed to load products', err);
+            }
+            renderConsumerCatalog();
+        }
 
         function renderConsumerCatalog() {
             const grid = document.getElementById('consumer-product-grid');
@@ -850,15 +888,111 @@
             document.getElementById('checkout-bottom-total').innerText = '₹' + grandTotal;
         }
 
-        function placeConsumerOrder() {
+        async function placeConsumerOrder() {
             if(Object.keys(consumerCart).length === 0) {
                 alert("Please add items to your cart first.");
                 return;
             }
-            // Navigate directly to tracking view and empty cart
-            consumerCart = {};
-            updateCartHeaderAndBar();
-            navigateTo('view-consumer-tracking');
+            const items = Object.keys(consumerCart).map(id => {
+                const product = CONSUMER_PRODUCTS.find(p => p.id == id);
+                return {
+                    id: product.id,
+                    name: product.name,
+                    qty: consumerCart[id],
+                    price: product.price
+                };
+            });
+            const totalAmount = items.reduce((sum, item) => sum + item.price * item.qty, 0) + 2;
+            try {
+                const result = await api('/api/consumer/checkout', {
+                    method: 'POST',
+                    body: JSON.stringify({ items, totalAmount, paymentMethod: 'COD' })
+                });
+                const orderEl = document.getElementById('consumer-order-id');
+                if (orderEl && result.orderId) {
+                    orderEl.innerText = 'Order #' + String(result.orderId).slice(0, 8).toUpperCase();
+                }
+                consumerCart = {};
+                updateCartHeaderAndBar();
+                navigateTo('view-consumer-tracking');
+            } catch (err) {
+                alert('Checkout failed: ' + err.message);
+            }
+        }
+
+        async function loginRetailer() {
+            const phone = (document.getElementById('retailer-login-phone')?.value || '').trim();
+            const otp = (document.getElementById('retailer-login-otp')?.value || '').trim();
+            try {
+                await api('/api/auth/send-otp', {
+                    method: 'POST',
+                    body: JSON.stringify({ phone })
+                });
+                const result = await api('/api/auth/verify-otp', {
+                    method: 'POST',
+                    body: JSON.stringify({ phone, otp })
+                });
+                authToken = result.token;
+                localStorage.setItem('ck_token', authToken);
+                navigateTo('view-retailer');
+            } catch (err) {
+                alert('Login failed: ' + err.message);
+            }
+        }
+
+        async function loadRetailerDashboard() {
+            try {
+                const profile = await api('/api/retailer/profile');
+                const nameEl = document.getElementById('retailer-store-name');
+                const consumerNameEl = document.getElementById('consumer-store-name');
+                if (nameEl && profile.name) nameEl.innerText = profile.name;
+                if (consumerNameEl && profile.name) consumerNameEl.innerText = profile.name;
+            } catch (err) {
+                console.error('Failed to load retailer profile', err);
+            }
+
+            const list = document.getElementById('retailer-inventory-list');
+            if (!list) return;
+            list.innerHTML = '<div class="text-xs text-slate-400 font-bold">Loading inventory...</div>';
+            try {
+                const items = await api('/api/retailer/inventory');
+                const total = items.reduce((sum, item) => sum + (item.stock || 0), 0);
+                const totalEl = document.getElementById('retailer-stock-total');
+                if (totalEl) totalEl.innerText = total.toLocaleString();
+                list.innerHTML = items.map(item => {
+                    const badge = item.compliant
+                        ? '<div class="inline-flex items-center gap-1.5 text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100"><i class="fas fa-shield-check"></i> VERIFIED</div>'
+                        : '<div class="inline-flex items-center gap-1.5 text-[9px] font-black text-amber-700 bg-amber-50 px-2 py-1 rounded-md border border-amber-100"><i class="fas fa-exclamation-triangle"></i> REVIEW</div>';
+                    return `
+                        <div class="bg-white p-4 rounded-2xl shadow-[0_4px_15px_-5px_rgba(0,0,0,0.05)] border border-slate-100 flex items-center gap-4">
+                            <div class="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100"><i class="fas fa-box text-slate-400"></i></div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-slate-800 text-sm">${item.name}</h4>
+                                <div class="text-xs text-slate-500 font-medium mb-1.5">₹${item.mrp} • Qty: ${item.stock}</div>
+                                ${badge}
+                            </div>
+                        </div>`;
+                }).join('');
+            } catch (err) {
+                list.innerHTML = `<div class="text-xs text-red-500 font-bold">Could not load inventory: ${err.message}</div>`;
+            }
+        }
+
+        async function scanLmpcLabel(input) {
+            const file = input.files && input.files[0];
+            input.value = '';
+            if (!file) return;
+            const form = new FormData();
+            form.append('image', file);
+            form.append('print_type', 'normal');
+            try {
+                const result = await api('/api/v1/inspect', { method: 'POST', body: form });
+                const status = result.inspection?.overall_status || 'UNKNOWN';
+                const ocr = result.inspection?.ocr_status || '';
+                alert('LMPC scan ' + status + (ocr ? ' (OCR: ' + ocr + ')' : ''));
+            } catch (err) {
+                alert('Scan failed: ' + err.message);
+            }
         }
 
         // General Navigation System
@@ -891,17 +1025,20 @@
             }
 
             if(viewId === 'view-consumer') {
-                renderConsumerCatalog();
+                loadConsumerProducts();
             }
 
             if(viewId === 'view-consumer-cart') {
                 renderCartView();
             }
+
+            if(viewId === 'view-retailer') {
+                loadRetailerDashboard();
+            }
         }
 
-        // Initialize on load
         window.addEventListener('DOMContentLoaded', () => {
-            renderConsumerCatalog();
+            loadConsumerProducts();
         });
     </script>
 </body>
