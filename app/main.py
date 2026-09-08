@@ -24,7 +24,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 app.include_router(api_router, prefix="/api")
+
+# Mount Assets if directory exists
+assets_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Assets")
+if os.path.exists(assets_path):
+    app.mount("/Assets", StaticFiles(directory=assets_path), name="assets")
+
+@app.get("/")
+def read_root():
+    frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Frontend_1.html")
+    if os.path.exists(frontend_path):
+        return FileResponse(frontend_path)
+    return {
+        "status": "ok",
+        "service": "CloudKirana"
+    }
 
 @app.get("/health")
 def health():
