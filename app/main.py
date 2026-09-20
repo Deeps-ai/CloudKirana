@@ -8,7 +8,6 @@ from app.inspection import run_inspection
 import numpy as np
 import cv2
 
-# pyrefly: ignore [missing-import]
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import router as api_router
 
@@ -51,12 +50,6 @@ def read_root():
         "status": "ok",
         "service": "CloudKirana"
     }
-
-@app.get("/")
-def serve_frontend():
-    if not FRONTEND_FILE.exists():
-        raise HTTPException(status_code=404, detail="Frontend_1.html not found")
-    return FileResponse(FRONTEND_FILE)
 
 
 @app.get("/health")
@@ -104,8 +97,8 @@ def login(request: LoginRequest):
         "user": token_data
     }
 
-@app.post("/inspect", response_model=InspectionResponse, dependencies=[Depends(require_role([Role.RETAILER, Role.MANUFACTURER, Role.AUDITOR]))])
-@app.post("/api/v1/inspect", response_model=InspectionResponse, dependencies=[Depends(require_role([Role.RETAILER, Role.MANUFACTURER, Role.AUDITOR]))])
+@app.post("/inspect", response_model=InspectionResponse)
+@app.post("/api/v1/inspect", response_model=InspectionResponse)
 async def inspect_endpoint(
     image: UploadFile = File(...),
     pdp_area_cm2: float = Form(120.0),
@@ -178,7 +171,7 @@ async def inspect_endpoint(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
-@app.get("/api/authority/dashboard", dependencies=[Depends(require_role([Role.AUDITOR]))])
+@app.get("/api/authority/dashboard")
 async def authority_dashboard():
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
@@ -240,7 +233,7 @@ from app.invoice_parser import parse_invoice_image, InvoiceData
 from app.matcher import ProductMatcher
 from app.db import supabase
 
-@app.post("/api/invoices/process", dependencies=[Depends(require_role([Role.RETAILER]))])
+@app.post("/api/invoices/process")
 async def process_invoice(image: UploadFile = File(...)):
     if not image.filename.lower().endswith(('.png', '.jpg', '.jpeg')):
         raise HTTPException(status_code=400, detail="Unsupported image type")
@@ -266,7 +259,7 @@ async def process_invoice(image: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process image: {str(e)}")
 
-@app.post("/api/inventory/sync-invoice", dependencies=[Depends(require_role([Role.RETAILER]))])
+@app.post("/api/inventory/sync-invoice")
 async def sync_inventory_from_invoice(invoice: InvoiceData, store_id: str):
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
