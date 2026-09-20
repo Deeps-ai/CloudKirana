@@ -1,10 +1,11 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
 fastapi
 uvicorn
 python-multipart
-opencv-python
+opencv-python-headless
 easyocr
 torch
+torchvision
 pydantic
-
 supabase
 python-dotenv

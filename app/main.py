@@ -11,7 +11,7 @@ import cv2
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import router as api_router
 
-FRONTEND_FILE = Path(__file__).resolve().parent.parent / "Frontend_1.html"
+FRONTEND_FILE = Path(__file__).resolve().parent.parent / "index.html"
 
 app = FastAPI(
     title="CloudKirana Inspection Backend",
@@ -43,7 +43,7 @@ if os.path.exists(assets_path):
 
 @app.get("/")
 def read_root():
-    frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "Frontend_1.html")
+    frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "index.html")
     if os.path.exists(frontend_path):
         return FileResponse(frontend_path)
     return {
